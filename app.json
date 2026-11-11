@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "Darts Scorer",
+    "slug": "darts-scorer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0f172a",
+    "ios": { "supportsTablet": true, "bundleIdentifier": "com.example.dartsscorer" },
+    "android": { "package": "com.example.dartsscorer" },
+    "plugins": ["expo-status-bar"]
+  }
+}
