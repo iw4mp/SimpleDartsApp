@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeState, Dart, DEFAULT_SETTINGS, Match, Settings } from './engine';
+import { computeState, Dart, DEFAULT_SETTINGS, decodeDart, encodeDart, Match, Settings } from './engine';
 
 const S = (v: number): Dart => ({ value: v, mult: 1 });
 const D = (v: number): Dart => ({ value: v, mult: 2 });
@@ -83,5 +83,11 @@ describe('computeState', () => {
     const after = computeState(match(darts));
     expect(after.remaining).not.toEqual(before.remaining);
     expect(computeState(match(darts.slice(0, -1)))).toEqual(before);
+  });
+
+  it('encodeDart/decodeDart sind verlustfrei', () => {
+    for (const d of [S(0), S(7), D(20), T(19), S(25), D(25)]) {
+      expect(decodeDart(encodeDart(d))).toEqual(d);
+    }
   });
 });

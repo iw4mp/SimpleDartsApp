@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Keypad from '../components/Keypad';
+import { getCheckout } from '../checkout';
 import { dartLabel, GameState, Match } from '../engine';
 import { Player, useStore } from '../store';
 import { colors } from '../theme';
@@ -55,6 +56,12 @@ export default function GameScreen({ match, state, players }: Props) {
         {match.playerIds.map((id, idx) => {
           const active = idx === current;
           const stats = state.stats[idx];
+          // Aktiver Spieler: nur noch die verbleibenden Darts der Aufnahme, sonst volle 3
+          const dartsLeft = active ? 3 - darts.length : 3;
+          const route =
+            state.opened[idx] && dartsLeft > 0
+              ? getCheckout(state.remaining[idx], dartsLeft, match.settings.out)
+              : null;
           return (
             <View key={id} style={[styles.playerRow, active && styles.playerRowActive]}>
               <View style={{ flex: 1 }}>
@@ -63,6 +70,11 @@ export default function GameScreen({ match, state, players }: Props) {
                   {nameOf(idx)}
                 </Text>
                 <Text style={styles.playerAvg}>Ø {stats.average.toFixed(1)}</Text>
+                {route && (
+                  <Text style={[styles.checkout, active && styles.checkoutActive]} numberOfLines={1}>
+                    🎯 {route.map(dartLabel).join(' · ')}
+                  </Text>
+                )}
               </View>
               <Text style={[styles.remaining, active && styles.remainingActive]}>{state.remaining[idx]}</Text>
             </View>
@@ -116,6 +128,8 @@ const styles = StyleSheet.create({
   playerRowActive: { borderColor: colors.accent, backgroundColor: '#2a1f1a' },
   playerName: { color: colors.muted, fontSize: 18, fontWeight: '700' },
   playerAvg: { color: colors.muted, fontSize: 13, marginTop: 2 },
+  checkout: { color: colors.muted, fontSize: 13, fontWeight: '700', marginTop: 2 },
+  checkoutActive: { color: colors.accent, fontSize: 15 },
   remaining: { color: colors.muted, fontSize: 40, fontWeight: '900', fontVariant: ['tabular-nums'] },
   remainingActive: { color: colors.text, fontSize: 48 },
   turn: { alignItems: 'center', gap: 6, paddingVertical: 8 },

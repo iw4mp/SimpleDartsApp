@@ -19,6 +19,8 @@ export interface Match {
   settings: Settings;
   playerIds: string[];
   darts: Dart[]; // alle Darts in Wurfreihenfolge (Quelle der Wahrheit)
+  id?: string;
+  startedAt?: number;
 }
 
 export interface CompletedTurn {
@@ -44,6 +46,7 @@ export interface GameState {
   winnerIdx: number | null;
   lastTurn: CompletedTurn | null; // vom letzten Dart beendete Aufnahme (z. B. Bust-Anzeige)
   stats: PlayerStats[];
+  opened: boolean[]; // bei Double-In: hat der Spieler schon "geöffnet"?
 }
 
 export const DEFAULT_SETTINGS: Settings = { startScore: 501, out: 'double', in: 'straight' };
@@ -56,13 +59,17 @@ export function isValidDart(value: number, mult: Multiplier): boolean {
 
 export const dartScore = (d: Dart) => d.value * d.mult;
 
+/** Kompakte Speicherung eines Darts als eine Zahl (Wert*10 + Multiplikator). */
+export const encodeDart = (d: Dart): number => d.value * 10 + d.mult;
+export const decodeDart = (n: number): Dart => ({ value: Math.floor(n / 10), mult: (n % 10) as Multiplier });
+
 export function dartLabel(d: Dart): string {
   if (d.value === 0) return '0';
   if (d.value === 25) return d.mult === 2 ? 'Bull' : '25';
   return `${d.mult === 3 ? 'T' : d.mult === 2 ? 'D' : ''}${d.value}`;
 }
 
-function validOut(d: Dart, out: OutMode): boolean {
+export function validOut(d: Dart, out: OutMode): boolean {
   if (out === 'single') return true;
   if (out === 'double') return d.mult === 2;
   return d.mult === 2 || d.mult === 3;
@@ -141,5 +148,5 @@ export function computeState(match: Match): GameState {
     }
   }
 
-  return { remaining, currentIdx, turnDarts, turns, winnerIdx, lastTurn, stats };
+  return { remaining, currentIdx, turnDarts, turns, winnerIdx, lastTurn, stats, opened };
 }

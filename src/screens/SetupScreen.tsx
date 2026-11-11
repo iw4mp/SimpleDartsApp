@@ -29,7 +29,8 @@ function Segmented<T extends string | number>({
   );
 }
 
-export default function SetupScreen() {
+export default function SetupScreen({ onOpenHistory }: { onOpenHistory: () => void }) {
+  const historyCount = useStore((s) => s.history.length);
   const players = useStore((s) => s.players);
   const selectedIds = useStore((s) => s.selectedIds);
   const settings = useStore((s) => s.settings);
@@ -148,6 +149,9 @@ export default function SetupScreen() {
           <Text style={styles.startText}>Spiel starten</Text>
         </Pressable>
         {!canStart && <Text style={[styles.hint, { textAlign: 'center' }]}>Mindestens 2 Spieler auswählen</Text>}
+        <Pressable onPress={onOpenHistory} hitSlop={10} style={{ alignItems: 'center', padding: 8 }}>
+          <Text style={styles.link}>📜 Verlauf{historyCount > 0 ? ` (${historyCount})` : ''}</Text>
+        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
